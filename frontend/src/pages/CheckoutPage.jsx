@@ -1,0 +1,108 @@
+import { useState } from 'react';
+import { useCart } from '../context/CartContext';
+import { criarPedido } from '../utils/api';
+
+const WHATSAPP_NUMBER = '5511999999999';
+
+function CheckoutPage() {
+  const { cart, totals, clearCart } = useCart();
+  const [form, setForm] = useState({
+    nome: '',
+    sobrenome: '',
+    telefone: '',
+    endereco: '',
+    pagamento: 'Pix'
+  });
+  const [status, setStatus] = useState(null);
+  const [whatsUrl, setWhatsUrl] = useState('');
+
+  const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  const finalizar = async (event) => {
+    event.preventDefault();
+    const payload = {
+      nome: `${form.nome} ${form.sobrenome}`.trim(),
+      telefone: form.telefone,
+      endereco: form.endereco,
+      pagamento: form.pagamento,
+      itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome }))
+    };
+
+    const response = await criarPedido(payload);
+
+    if (response?.pedidoId) {
+      const itens = cart
+        .map((item) => `- ${item.nome} (${item.quantidade}x) R$ ${(item.preco * item.quantidade).toFixed(2)}`)
+        .join('%0A');
+      const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ATotal: R$ ${totals.amount.toFixed(2)}%0APagamento: ${payload.pagamento}`;
+
+      setWhatsUrl(`https://wa.me/${WHATSAPP_NUMBER}?text=${mensagem}`);
+      setStatus(`Pedido #${response.pedidoId} criado com sucesso!`);
+      clearCart();
+      return;
+    }
+
+    setStatus('Erro ao finalizar pedido.');
+  };
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+      <form className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-5 shadow-soft" onSubmit={finalizar}>
+        <h2 className="text-2xl font-bold">Checkout</h2>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input required placeholder="Nome" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('nome', e.target.value)} />
+          <input required placeholder="Sobrenome" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('sobrenome', e.target.value)} />
+        </div>
+        <input required placeholder="Telefone" className="w-full rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('telefone', e.target.value)} />
+        <textarea required placeholder="Endereço completo" className="h-28 w-full rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('endereco', e.target.value)} />
+
+        <div>
+          <p className="mb-2 text-sm font-semibold">Pagamento</p>
+          <div className="flex gap-4 text-sm">
+            {['Pix', 'Cartão (simulado)'].map((option) => (
+              <label key={option} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  checked={form.pagamento === option}
+                  onChange={() => setField('pagamento', option)}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <button type="submit" className="rounded-full bg-black px-6 py-3 text-sm font-semibold text-white">
+          Finalizar pedido
+        </button>
+
+        {status && <p className="font-medium text-zinc-700">{status}</p>}
+        {whatsUrl && (
+          <a className="inline-block rounded-full border border-black px-6 py-2 text-sm font-semibold" href={whatsUrl} target="_blank" rel="noreferrer">
+            Enviar pedido no WhatsApp
+          </a>
+        )}
+      </form>
+
+      <aside className="h-fit rounded-2xl border border-zinc-200 bg-white p-5 shadow-soft">
+        <h3 className="mb-3 text-lg font-bold">Resumo do pedido</h3>
+        <div className="space-y-2 text-sm">
+          {cart.map((item) => (
+            <div key={`${item.id}-${item.tamanho}`} className="flex justify-between text-zinc-700">
+              <span>{item.nome} x{item.quantidade}</span>
+              <span>R$ {(item.preco * item.quantidade).toFixed(2)}</span>
+            </div>
+          ))}
+          <hr className="my-2" />
+          <div className="flex justify-between text-base font-bold">
+            <span>Total</span>
+            <span>R$ {totals.amount.toFixed(2)}</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  );
+}
+
+export default CheckoutPage;
