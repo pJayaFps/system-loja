@@ -18,8 +18,8 @@ function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 md:px-6">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:px-6">
         <Link to="/" className="text-xl font-extrabold tracking-tight text-black">
           SportVault
         </Link>

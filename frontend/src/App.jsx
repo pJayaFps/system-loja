@@ -11,7 +11,7 @@ function App() {
     <div>
       <Header />
       <CategoryMenu />
-      <main className="mx-auto max-w-7xl px-4 py-6 md:px-6">
+      <main className="mx-auto max-w-7xl px-4 pb-6 pt-32 md:px-6">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/produto/:id" element={<ProductPage />} />
