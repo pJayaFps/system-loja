@@ -8,6 +8,7 @@ Projeto fullstack local com:
 - Carrinho persistido no `localStorage`
 - Checkout com Pix/Cartão (simulado)
 - Geração automática de link para envio do pedido via WhatsApp
+- Área separada de administrador com login e CRUD completo de produtos
 
 ## Como rodar
 
@@ -28,17 +29,34 @@ O arquivo SQLite é criado automaticamente ao iniciar o backend:
 
 Tabelas:
 
-- `Produtos`
+- `Produtos` (inclui `subcategoria` e `tamanhos`)
 - `Pedidos`
 - `ItensPedido`
+
+## Admin (separado da loja)
+
+- Login: `http://localhost:5173/admin/login`
+- Painel: `http://localhost:5173/admin/painel`
+- Credenciais padrão locais:
+  - usuário: `admin`
+  - senha: `admin123`
+
+No painel admin você pode:
+
+- adicionar produto
+- editar produto
+- remover produto
+- atualizar nome, descrição, preço, estoque, categoria, subcategoria, tamanhos e imagem
 
 ## Funcionalidades
 
 - Header fixo com busca, login, favoritos e carrinho com contador.
-- Menu de categorias com mega menu em hover.
+- Menu de categorias com mega menu em hover com delay para facilitar clique.
+- Clique em subcategoria filtra os produtos.
 - Banner principal com carrossel automático e CTA.
 - Seção de marcas clicável para filtro.
 - Listagem de produtos em grid responsivo com filtros laterais.
+- Botão de mostrar/ocultar filtros no mobile.
 - Página de produto com galeria, tamanho e ações de compra.
 - Carrinho com alteração de quantidade e remoção.
 - Checkout com persistência em SQLite.
@@ -46,6 +64,6 @@ Tabelas:
 
 ## Estrutura
 
-- `backend/src/server.js` → rotas API
+- `backend/src/server.js` → rotas API e rotas admin
 - `backend/src/db.js` → criação/seed do SQLite
 - `frontend/src` → aplicação React/Tailwind

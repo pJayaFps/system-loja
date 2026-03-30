@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProdutoById } from '../utils/api';
@@ -13,6 +13,15 @@ function ProductPage() {
   useEffect(() => {
     getProdutoById(id).then(setProduct);
   }, [id]);
+
+  const availableSizes = useMemo(() => {
+    if (!product?.tamanhos) return ['P', 'M', 'G', 'GG'];
+    return product.tamanhos.split(',').map((item) => item.trim()).filter(Boolean);
+  }, [product]);
+
+  useEffect(() => {
+    if (availableSizes.length) setSize(availableSizes[0]);
+  }, [availableSizes]);
 
   if (!product) {
     return <p>Carregando...</p>;
@@ -37,13 +46,14 @@ function ProductPage() {
       <div className="space-y-4">
         <p className="text-xs uppercase tracking-[.2em] text-zinc-500">{product.marca}</p>
         <h1 className="text-3xl font-bold">{product.nome}</h1>
+        <p className="text-sm text-zinc-500">{product.categoria} • {product.subcategoria}</p>
         <p className="text-2xl font-bold">R$ {product.preco.toFixed(2)}</p>
         <p className="text-zinc-600">{product.descricao}</p>
 
         <div>
           <p className="mb-2 text-sm font-semibold">Tamanho</p>
           <div className="flex gap-2">
-            {['P', 'M', 'G', 'GG'].map((s) => (
+            {availableSizes.map((s) => (
               <button
                 key={s}
                 className={`rounded-md border px-4 py-2 text-sm ${size === s ? 'border-black bg-black text-white' : 'border-zinc-300'}`}

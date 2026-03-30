@@ -1,15 +1,41 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { categories } from '../data/categories';
 
 function CategoryMenu() {
   const [active, setActive] = useState(null);
+  const hideTimerRef = useRef(null);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const applyFilter = (nome) => {
+  const clearHideTimer = () => {
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+  };
+
+  const openMenu = (nome) => {
+    clearHideTimer();
+    setActive(nome);
+  };
+
+  const closeMenuWithDelay = () => {
+    clearHideTimer();
+    hideTimerRef.current = setTimeout(() => setActive(null), 2000);
+  };
+
+  const applyCategory = (categoria) => {
     const next = new URLSearchParams(searchParams);
-    next.set('categoria', nome);
+    next.set('categoria', categoria);
+    next.delete('subcategoria');
+    navigate(`/?${next.toString()}`);
+  };
+
+  const applySubcategory = (categoria, subcategoria) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('categoria', categoria);
+    next.set('subcategoria', subcategoria);
     navigate(`/?${next.toString()}`);
   };
 
@@ -20,24 +46,34 @@ function CategoryMenu() {
           <div
             key={cat.nome}
             className="relative"
-            onMouseEnter={() => setActive(cat.nome)}
-            onMouseLeave={() => setActive(null)}
+            onMouseEnter={() => openMenu(cat.nome)}
+            onMouseLeave={closeMenuWithDelay}
           >
             <button
               className="text-sm font-medium text-zinc-700 hover:text-black"
-              onClick={() => applyFilter(cat.nome)}
+              onClick={() => applyCategory(cat.nome)}
             >
               {cat.nome}
             </button>
+
             {active === cat.nome && (
-              <div className="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-zinc-200 bg-white p-4 shadow-soft">
+              <div
+                className="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-zinc-200 bg-white p-4 shadow-soft"
+                onMouseEnter={() => openMenu(cat.nome)}
+                onMouseLeave={closeMenuWithDelay}
+              >
                 <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-zinc-500">
                   Subcategorias
                 </h4>
                 <ul className="space-y-2">
                   {cat.subcategorias.map((sub) => (
-                    <li key={sub} className="text-sm text-zinc-700 hover:text-black">
-                      {sub}
+                    <li key={sub}>
+                      <button
+                        className="text-sm text-zinc-700 hover:text-black"
+                        onClick={() => applySubcategory(cat.nome, sub)}
+                      >
+                        {sub}
+                      </button>
                     </li>
                   ))}
                 </ul>

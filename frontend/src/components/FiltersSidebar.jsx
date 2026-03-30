@@ -1,4 +1,4 @@
-function FiltersSidebar({ marcas, categorias, filters, setFilters }) {
+function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters }) {
   const update = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -20,6 +20,14 @@ function FiltersSidebar({ marcas, categorias, filters, setFilters }) {
         <select className="w-full rounded-lg border border-zinc-300 p-2" value={filters.categoria} onChange={(e) => update('categoria', e.target.value)}>
           <option value="">Todas</option>
           {categorias.map((categoria) => <option key={categoria}>{categoria}</option>)}
+        </select>
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm font-semibold">Subcategoria</p>
+        <select className="w-full rounded-lg border border-zinc-300 p-2" value={filters.subcategoria} onChange={(e) => update('subcategoria', e.target.value)}>
+          <option value="">Todas</option>
+          {subcategorias.map((subcategoria) => <option key={subcategoria}>{subcategoria}</option>)}
         </select>
       </div>
 

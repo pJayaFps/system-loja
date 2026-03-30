@@ -1,17 +1,42 @@
 import express from 'express';
 import cors from 'cors';
+import crypto from 'crypto';
 import { db, initDb } from './db.js';
 
 const app = express();
 const PORT = 3001;
+const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
+const adminTokens = new Set();
 
 initDb();
 
 app.use(cors());
 app.use(express.json());
 
+function ensureAdmin(req, res, next) {
+  const authHeader = req.headers.authorization || '';
+  const token = authHeader.replace('Bearer ', '').trim();
+
+  if (!token || !adminTokens.has(token)) {
+    return res.status(401).json({ error: 'Não autorizado' });
+  }
+
+  return next();
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const { usuario, senha } = req.body;
+  if (usuario === ADMIN_USER && senha === ADMIN_PASS) {
+    const token = crypto.randomBytes(24).toString('hex');
+    adminTokens.add(token);
+    return res.json({ token });
+  }
+  return res.status(401).json({ error: 'Credenciais inválidas' });
+});
+
 app.get('/api/produtos', (req, res) => {
-  const { categoria, marca, busca, min, max } = req.query;
+  const { categoria, subcategoria, marca, busca, min, max } = req.query;
 
   const filters = [];
   const params = [];
@@ -20,13 +45,17 @@ app.get('/api/produtos', (req, res) => {
     filters.push('categoria = ?');
     params.push(categoria);
   }
+  if (subcategoria) {
+    filters.push('subcategoria = ?');
+    params.push(subcategoria);
+  }
   if (marca) {
     filters.push('marca = ?');
     params.push(marca);
   }
   if (busca) {
-    filters.push('(nome LIKE ? OR descricao LIKE ?)');
-    params.push(`%${busca}%`, `%${busca}%`);
+    filters.push('(nome LIKE ? OR descricao LIKE ? OR subcategoria LIKE ?)');
+    params.push(`%${busca}%`, `%${busca}%`, `%${busca}%`);
   }
   if (min) {
     filters.push('preco >= ?');
@@ -58,11 +87,18 @@ app.get('/api/produtos/:id', (req, res) => {
 app.get('/api/filtros', (_req, res) => {
   db.all('SELECT DISTINCT marca FROM Produtos ORDER BY marca', (errM, marcas) => {
     if (errM) return res.status(500).json({ error: 'Erro ao buscar marcas' });
+
     db.all('SELECT DISTINCT categoria FROM Produtos ORDER BY categoria', (errC, categorias) => {
       if (errC) return res.status(500).json({ error: 'Erro ao buscar categorias' });
-      res.json({
-        marcas: marcas.map((m) => m.marca),
-        categorias: categorias.map((c) => c.categoria)
+
+      db.all('SELECT DISTINCT subcategoria FROM Produtos WHERE subcategoria IS NOT NULL AND subcategoria != "" ORDER BY subcategoria', (errS, subcategorias) => {
+        if (errS) return res.status(500).json({ error: 'Erro ao buscar subcategorias' });
+
+        res.json({
+          marcas: marcas.map((m) => m.marca),
+          categorias: categorias.map((c) => c.categoria),
+          subcategorias: subcategorias.map((s) => s.subcategoria)
+        });
       });
     });
   });
@@ -96,6 +132,41 @@ app.post('/api/pedidos', (req, res) => {
       });
     }
   );
+});
+
+app.post('/api/admin/produtos', ensureAdmin, (req, res) => {
+  const { nome, descricao, preco, marca, categoria, subcategoria, imagem, estoque, tamanhos } = req.body;
+
+  db.run(
+    'INSERT INTO Produtos (nome, descricao, preco, marca, categoria, subcategoria, imagem, estoque, tamanhos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [nome, descricao, Number(preco), marca, categoria, subcategoria || '', imagem, Number(estoque), tamanhos || 'P,M,G,GG'],
+    function onInsert(err) {
+      if (err) return res.status(500).json({ error: 'Erro ao criar produto' });
+      return res.status(201).json({ id: this.lastID });
+    }
+  );
+});
+
+app.put('/api/admin/produtos/:id', ensureAdmin, (req, res) => {
+  const { nome, descricao, preco, marca, categoria, subcategoria, imagem, estoque, tamanhos } = req.body;
+
+  db.run(
+    `UPDATE Produtos
+     SET nome = ?, descricao = ?, preco = ?, marca = ?, categoria = ?, subcategoria = ?, imagem = ?, estoque = ?, tamanhos = ?
+     WHERE id = ?`,
+    [nome, descricao, Number(preco), marca, categoria, subcategoria || '', imagem, Number(estoque), tamanhos || 'P,M,G,GG', req.params.id],
+    function onUpdate(err) {
+      if (err) return res.status(500).json({ error: 'Erro ao atualizar produto' });
+      return res.json({ updated: this.changes > 0 });
+    }
+  );
+});
+
+app.delete('/api/admin/produtos/:id', ensureAdmin, (req, res) => {
+  db.run('DELETE FROM Produtos WHERE id = ?', [req.params.id], function onDelete(err) {
+    if (err) return res.status(500).json({ error: 'Erro ao remover produto' });
+    return res.json({ deleted: this.changes > 0 });
+  });
 });
 
 app.listen(PORT, () => {
