@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import BannerCarousel from '../components/BannerCarousel';
 import BrandsStrip from '../components/BrandsStrip';
 import FiltersSidebar from '../components/FiltersSidebar';
 import ProductGrid from '../components/ProductGrid';
 import { getFiltros, getProdutos } from '../utils/api';
 
+const initialFilters = { marca: '', categoria: '', subcategoria: '', min: '', max: '' };
+
 function HomePage() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filtrosOpcoes, setFiltrosOpcoes] = useState({ marcas: [], categorias: [], subcategorias: [] });
-  const [filters, setFilters] = useState({ marca: '', categoria: '', subcategoria: '', min: '', max: '' });
+  const [filters, setFilters] = useState(initialFilters);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   const mergedFilters = useMemo(
@@ -33,6 +36,11 @@ function HomePage() {
   }, [mergedFilters]);
 
   const applyBrand = (brand) => setFilters((prev) => ({ ...prev, marca: brand }));
+
+  const clearFilters = () => {
+    setFilters(initialFilters);
+    navigate('/');
+  };
 
   return (
     <div className="space-y-6">
@@ -57,6 +65,7 @@ function HomePage() {
             subcategorias={filtrosOpcoes.subcategorias}
             filters={mergedFilters}
             setFilters={setFilters}
+            onClearFilters={clearFilters}
           />
         </div>
         <ProductGrid products={products} />

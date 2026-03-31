@@ -1,11 +1,16 @@
-function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters }) {
+function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters, onClearFilters }) {
   const update = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
     <aside className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-4 shadow-soft">
-      <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-500">Filtros</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-500">Filtros</h3>
+        <button className="text-xs font-semibold text-zinc-600 underline-offset-2 hover:text-black hover:underline" onClick={onClearFilters}>
+          Limpar filtros
+        </button>
+      </div>
 
       <div>
         <p className="mb-2 text-sm font-semibold">Marca</p>
