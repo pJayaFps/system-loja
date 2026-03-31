@@ -33,7 +33,7 @@ function CheckoutPage() {
       telefone: form.telefone,
       endereco: enderecoCompleto,
       pagamento: form.pagamento,
-      itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome })),
+      itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome, tamanho: item.tamanho })),
       cupomCodigo: coupon?.codigo || '',
       descontoCupom: totals.desconto
     };
@@ -42,7 +42,7 @@ function CheckoutPage() {
 
     if (response?.pedidoId) {
       const itens = cart
-        .map((item) => `- ${item.nome} (${item.quantidade}x) R$ ${formatPrice(item.preco * item.quantidade)}`)
+        .map((item) => `- ${item.nome} | Tam: ${item.tamanho} | ${item.quantidade}x | R$ ${formatPrice(item.preco * item.quantidade)}`)
         .join('%0A');
       const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ADesconto: R$ ${formatPrice(totals.desconto)}%0ATotal: R$ ${formatPrice(totals.finalAmount)}%0ACupom: ${payload.cupomCodigo || '-'}%0APagamento: ${payload.pagamento}`;
 
