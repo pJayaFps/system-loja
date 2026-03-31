@@ -6,6 +6,7 @@ import {
   adminUpdateProduto,
   getProdutos
 } from '../utils/api';
+import { formatPrice } from '../utils/format';
 
 const initialForm = {
   nome: '',
@@ -130,7 +131,7 @@ function AdminPanelPage() {
             <article key={product.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 pb-3">
               <div>
                 <p className="font-semibold">{product.nome}</p>
-                <p className="text-sm text-zinc-500">{product.categoria} • {product.subcategoria} • R$ {Number(product.preco).toFixed(2)}</p>
+                <p className="text-sm text-zinc-500">{product.categoria} • {product.subcategoria} • R$ {formatPrice(product.preco)}</p>
               </div>
               <div className="flex gap-2">
                 <button className="rounded-full border border-zinc-400 px-4 py-1 text-sm" onClick={() => onEdit(product)}>Editar</button>

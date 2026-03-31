@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { criarPedido } from '../utils/api';
+import { formatPrice } from '../utils/format';
 
 const WHATSAPP_NUMBER = '5511999999999';
 
@@ -32,9 +33,9 @@ function CheckoutPage() {
 
     if (response?.pedidoId) {
       const itens = cart
-        .map((item) => `- ${item.nome} (${item.quantidade}x) R$ ${(item.preco * item.quantidade).toFixed(2)}`)
+        .map((item) => `- ${item.nome} (${item.quantidade}x) R$ ${formatPrice(item.preco * item.quantidade)}`)
         .join('%0A');
-      const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ATotal: R$ ${totals.amount.toFixed(2)}%0APagamento: ${payload.pagamento}`;
+      const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ATotal: R$ ${formatPrice(totals.amount)}%0APagamento: ${payload.pagamento}`;
 
       setWhatsUrl(`https://wa.me/${WHATSAPP_NUMBER}?text=${mensagem}`);
       setStatus(`Pedido #${response.pedidoId} criado com sucesso!`);
@@ -91,13 +92,13 @@ function CheckoutPage() {
           {cart.map((item) => (
             <div key={`${item.id}-${item.tamanho}`} className="flex justify-between text-zinc-700">
               <span>{item.nome} x{item.quantidade}</span>
-              <span>R$ {(item.preco * item.quantidade).toFixed(2)}</span>
+              <span>R$ {formatPrice(item.preco * item.quantidade)}</span>
             </div>
           ))}
           <hr className="my-2" />
           <div className="flex justify-between text-base font-bold">
             <span>Total</span>
-            <span>R$ {totals.amount.toFixed(2)}</span>
+            <span>R$ {formatPrice(totals.amount)}</span>
           </div>
         </div>
       </aside>

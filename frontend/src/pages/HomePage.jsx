@@ -5,6 +5,7 @@ import BannerCarousel from '../components/BannerCarousel';
 import BrandsStrip from '../components/BrandsStrip';
 import FiltersSidebar from '../components/FiltersSidebar';
 import ProductGrid from '../components/ProductGrid';
+import PromoShowcase from '../components/PromoShowcase';
 import { getFiltros, getProdutos } from '../utils/api';
 
 const initialFilters = { marca: '', categoria: '', subcategoria: '', min: '', max: '' };
@@ -27,13 +28,29 @@ function HomePage() {
     [filters, searchParams]
   );
 
+  const hasActiveFilters = useMemo(
+    () => Boolean(
+      mergedFilters.marca ||
+      mergedFilters.categoria ||
+      mergedFilters.subcategoria ||
+      mergedFilters.min ||
+      mergedFilters.max ||
+      mergedFilters.busca
+    ),
+    [mergedFilters]
+  );
+
   useEffect(() => {
     getFiltros().then(setFiltrosOpcoes);
   }, []);
 
   useEffect(() => {
+    if (!hasActiveFilters) {
+      setProducts([]);
+      return;
+    }
     getProdutos(mergedFilters).then(setProducts);
-  }, [mergedFilters]);
+  }, [mergedFilters, hasActiveFilters]);
 
   const applyBrand = (brand) => setFilters((prev) => ({ ...prev, marca: brand }));
 
@@ -68,7 +85,17 @@ function HomePage() {
             onClearFilters={clearFilters}
           />
         </div>
-        <ProductGrid products={products} />
+
+        {hasActiveFilters ? (
+          <ProductGrid products={products} />
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4 text-sm text-zinc-600 shadow-soft">
+              Use a busca, categorias ou subcategorias para abrir os produtos. Enquanto isso, confira as promoções abaixo.
+            </div>
+            <PromoShowcase />
+          </div>
+        )}
       </div>
     </div>
   );

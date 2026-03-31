@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { formatPrice } from '../utils/format';
 
 function CartPage() {
   const { cart, removeFromCart, updateQuantity, totals } = useCart();
@@ -33,7 +34,7 @@ function CartPage() {
               onChange={(e) => updateQuantity(item.id, item.tamanho, Number(e.target.value))}
               className="w-16 rounded-lg border border-zinc-300 p-2"
             />
-            <p className="w-24 text-right font-bold">R$ {(item.preco * item.quantidade).toFixed(2)}</p>
+            <p className="w-24 text-right font-bold">R$ {formatPrice(item.preco * item.quantidade)}</p>
             <button className="text-sm font-semibold text-zinc-500 hover:text-black" onClick={() => removeFromCart(item.id, item.tamanho)}>
               Remover
             </button>
@@ -45,7 +46,7 @@ function CartPage() {
         <h3 className="text-lg font-bold">Resumo</h3>
         <div className="flex justify-between">
           <span>Total</span>
-          <span className="font-bold">R$ {totals.amount.toFixed(2)}</span>
+          <span className="font-bold">R$ {formatPrice(totals.amount)}</span>
         </div>
         <button className="w-full rounded-full bg-black py-3 text-sm font-semibold text-white" onClick={() => navigate('/checkout')}>
           Ir para checkout

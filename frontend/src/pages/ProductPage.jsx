@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { getProdutoById } from '../utils/api';
+import { formatPrice } from '../utils/format';
 
 function ProductPage() {
   const { id } = useParams();
@@ -47,7 +48,7 @@ function ProductPage() {
         <p className="text-xs uppercase tracking-[.2em] text-zinc-500">{product.marca}</p>
         <h1 className="text-3xl font-bold">{product.nome}</h1>
         <p className="text-sm text-zinc-500">{product.categoria} • {product.subcategoria}</p>
-        <p className="text-2xl font-bold">R$ {product.preco.toFixed(2)}</p>
+        <p className="text-2xl font-bold">R$ {formatPrice(product.preco)}</p>
         <p className="text-zinc-600">{product.descricao}</p>
 
         <div>

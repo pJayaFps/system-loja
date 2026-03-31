@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { formatPrice } from '../utils/format';
 
 function ProductGrid({ products }) {
   const { addToCart } = useCart();
@@ -21,8 +22,8 @@ function ProductGrid({ products }) {
               <div className="space-y-2 p-4">
                 <h4 className="line-clamp-2 font-semibold">{product.nome}</h4>
                 <div>
-                  <p className="text-xs text-zinc-500 line-through">R$ {(product.preco + discount).toFixed(2)}</p>
-                  <p className="text-xl font-bold">R$ {product.preco.toFixed(2)}</p>
+                  <p className="text-xs text-zinc-500 line-through">R$ {formatPrice(product.preco + discount)}</p>
+                  <p className="text-xl font-bold">R$ {formatPrice(product.preco)}</p>
                 </div>
                 <button className="w-full rounded-full bg-black py-2 text-sm font-semibold text-white hover:bg-zinc-800" onClick={() => addToCart(product)}>
                   Adicionar ao carrinho
