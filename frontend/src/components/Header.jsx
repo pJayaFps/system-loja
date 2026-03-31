@@ -40,7 +40,7 @@ function Header() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-[120] border-b border-zinc-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 md:gap-4 md:px-6">
         <button
           className="rounded-full border border-zinc-300 p-2 md:hidden"
@@ -82,9 +82,9 @@ function Header() {
       </div>
 
       {mobileMenuOpen && hasMenu && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <button className="absolute inset-0 bg-black/40" onClick={() => setMobileMenuOpen(false)} aria-label="Fechar" />
-          <aside className="absolute left-0 top-0 h-full w-80 max-w-[85vw] overflow-y-auto bg-white p-4 shadow-xl">
+        <div className="fixed inset-0 z-[9999] md:hidden">
+          <button className="absolute inset-0 z-[9998] bg-black/40" onClick={() => setMobileMenuOpen(false)} aria-label="Fechar" />
+          <aside className="absolute left-0 top-0 z-[10000] h-full w-80 max-w-[85vw] overflow-y-auto bg-white p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-bold">Categorias</h3>
               <button className="rounded-full border border-zinc-300 p-2" onClick={() => setMobileMenuOpen(false)}>
