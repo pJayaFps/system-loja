@@ -11,7 +11,11 @@ function CheckoutPage() {
     nome: '',
     sobrenome: '',
     telefone: '',
-    endereco: '',
+    rua: '',
+    numero: '',
+    bairro: '',
+    cidade: '',
+    complemento: '',
     pagamento: 'Pix'
   });
   const [status, setStatus] = useState(null);
@@ -21,10 +25,13 @@ function CheckoutPage() {
 
   const finalizar = async (event) => {
     event.preventDefault();
+
+    const enderecoCompleto = `Rua: ${form.rua}, Nº: ${form.numero}, Bairro: ${form.bairro}, Cidade: ${form.cidade}${form.complemento ? `, Complemento: ${form.complemento}` : ''}`;
+
     const payload = {
       nome: `${form.nome} ${form.sobrenome}`.trim(),
       telefone: form.telefone,
-      endereco: form.endereco,
+      endereco: enderecoCompleto,
       pagamento: form.pagamento,
       itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome })),
       cupomCodigo: coupon?.codigo || '',
@@ -57,28 +64,30 @@ function CheckoutPage() {
           <input required placeholder="Nome" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('nome', e.target.value)} />
           <input required placeholder="Sobrenome" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('sobrenome', e.target.value)} />
         </div>
+
         <input required placeholder="Telefone" className="w-full rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('telefone', e.target.value)} />
-        <textarea required placeholder="Endereço completo" className="h-28 w-full rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('endereco', e.target.value)} />
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input required placeholder="Nome da rua" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('rua', e.target.value)} />
+          <input required placeholder="Número" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('numero', e.target.value)} />
+          <input required placeholder="Bairro" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('bairro', e.target.value)} />
+          <input required placeholder="Cidade" className="rounded-lg border border-zinc-300 p-3" onChange={(e) => setField('cidade', e.target.value)} />
+          <input placeholder="Complemento (opcional)" className="rounded-lg border border-zinc-300 p-3 sm:col-span-2" onChange={(e) => setField('complemento', e.target.value)} />
+        </div>
 
         <div>
           <p className="mb-2 text-sm font-semibold">Pagamento</p>
           <div className="flex gap-4 text-sm">
             {['Pix', 'Cartão (simulado)'].map((option) => (
               <label key={option} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  checked={form.pagamento === option}
-                  onChange={() => setField('pagamento', option)}
-                />
+                <input type="radio" checked={form.pagamento === option} onChange={() => setField('pagamento', option)} />
                 {option}
               </label>
             ))}
           </div>
         </div>
 
-        <button type="submit" className="rounded-full bg-black px-6 py-3 text-sm font-semibold text-white">
-          Finalizar pedido
-        </button>
+        <button type="submit" className="rounded-full bg-black px-6 py-3 text-sm font-semibold text-white">Finalizar pedido</button>
 
         {status && <p className="font-medium text-zinc-700">{status}</p>}
         {whatsUrl && (
