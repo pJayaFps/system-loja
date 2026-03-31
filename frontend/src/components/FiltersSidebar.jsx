@@ -1,6 +1,14 @@
-function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters, onClearFilters }) {
+import { useEffect, useState } from 'react';
+
+function FiltersSidebar({ marcas, categorias, subcategorias, filters, onApplyFilters, onClearFilters }) {
+  const [draft, setDraft] = useState(filters);
+
+  useEffect(() => {
+    setDraft(filters);
+  }, [filters]);
+
   const update = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -14,7 +22,7 @@ function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters
 
       <div>
         <p className="mb-2 text-sm font-semibold">Marca</p>
-        <select className="w-full rounded-lg border border-zinc-300 p-2" value={filters.marca} onChange={(e) => update('marca', e.target.value)}>
+        <select className="w-full rounded-lg border border-zinc-300 p-2" value={draft.marca} onChange={(e) => update('marca', e.target.value)}>
           <option value="">Todas</option>
           {marcas.map((marca) => <option key={marca}>{marca}</option>)}
         </select>
@@ -22,7 +30,7 @@ function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters
 
       <div>
         <p className="mb-2 text-sm font-semibold">Categoria</p>
-        <select className="w-full rounded-lg border border-zinc-300 p-2" value={filters.categoria} onChange={(e) => update('categoria', e.target.value)}>
+        <select className="w-full rounded-lg border border-zinc-300 p-2" value={draft.categoria} onChange={(e) => update('categoria', e.target.value)}>
           <option value="">Todas</option>
           {categorias.map((categoria) => <option key={categoria}>{categoria}</option>)}
         </select>
@@ -30,7 +38,7 @@ function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters
 
       <div>
         <p className="mb-2 text-sm font-semibold">Subcategoria</p>
-        <select className="w-full rounded-lg border border-zinc-300 p-2" value={filters.subcategoria} onChange={(e) => update('subcategoria', e.target.value)}>
+        <select className="w-full rounded-lg border border-zinc-300 p-2" value={draft.subcategoria} onChange={(e) => update('subcategoria', e.target.value)}>
           <option value="">Todas</option>
           {subcategorias.map((subcategoria) => <option key={subcategoria}>{subcategoria}</option>)}
         </select>
@@ -39,22 +47,17 @@ function FiltersSidebar({ marcas, categorias, subcategorias, filters, setFilters
       <div className="grid grid-cols-2 gap-2">
         <div>
           <p className="mb-2 text-sm font-semibold">Preço min</p>
-          <input className="w-full rounded-lg border border-zinc-300 p-2" type="number" value={filters.min} onChange={(e) => update('min', e.target.value)} />
+          <input className="w-full rounded-lg border border-zinc-300 p-2" type="number" value={draft.min} onChange={(e) => update('min', e.target.value)} />
         </div>
         <div>
           <p className="mb-2 text-sm font-semibold">Preço max</p>
-          <input className="w-full rounded-lg border border-zinc-300 p-2" type="number" value={filters.max} onChange={(e) => update('max', e.target.value)} />
+          <input className="w-full rounded-lg border border-zinc-300 p-2" type="number" value={draft.max} onChange={(e) => update('max', e.target.value)} />
         </div>
       </div>
 
-      <div>
-        <p className="mb-2 text-sm font-semibold">Tamanho</p>
-        <div className="flex gap-2">
-          {['P', 'M', 'G', 'GG'].map((size) => (
-            <button key={size} className="rounded-md border border-zinc-300 px-3 py-1 text-xs font-bold">{size}</button>
-          ))}
-        </div>
-      </div>
+      <button className="w-full rounded-full bg-black py-2 text-sm font-semibold text-white" onClick={() => onApplyFilters(draft)}>
+        Filtrar
+      </button>
     </aside>
   );
 }

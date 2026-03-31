@@ -15,28 +15,21 @@ function HomePage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filtrosOpcoes, setFiltrosOpcoes] = useState({ marcas: [], categorias: [], subcategorias: [] });
-  const [filters, setFilters] = useState(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
   const [showFiltersMobile, setShowFiltersMobile] = useState(false);
 
   const mergedFilters = useMemo(
     () => ({
-      ...filters,
-      categoria: searchParams.get('categoria') || filters.categoria,
-      subcategoria: searchParams.get('subcategoria') || filters.subcategoria,
+      ...appliedFilters,
+      categoria: searchParams.get('categoria') || appliedFilters.categoria,
+      subcategoria: searchParams.get('subcategoria') || appliedFilters.subcategoria,
       busca: searchParams.get('busca') || ''
     }),
-    [filters, searchParams]
+    [appliedFilters, searchParams]
   );
 
   const hasActiveFilters = useMemo(
-    () => Boolean(
-      mergedFilters.marca ||
-      mergedFilters.categoria ||
-      mergedFilters.subcategoria ||
-      mergedFilters.min ||
-      mergedFilters.max ||
-      mergedFilters.busca
-    ),
+    () => Boolean(mergedFilters.marca || mergedFilters.categoria || mergedFilters.subcategoria || mergedFilters.min || mergedFilters.max || mergedFilters.busca),
     [mergedFilters]
   );
 
@@ -52,10 +45,10 @@ function HomePage() {
     getProdutos(mergedFilters).then(setProducts);
   }, [mergedFilters, hasActiveFilters]);
 
-  const applyBrand = (brand) => setFilters((prev) => ({ ...prev, marca: brand }));
+  const applyBrand = (brand) => setAppliedFilters((prev) => ({ ...prev, marca: brand }));
 
   const clearFilters = () => {
-    setFilters(initialFilters);
+    setAppliedFilters(initialFilters);
     navigate('/');
   };
 
@@ -65,10 +58,7 @@ function HomePage() {
       <BrandsStrip onSelect={applyBrand} />
 
       <div className="flex justify-end lg:hidden">
-        <button
-          className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold"
-          onClick={() => setShowFiltersMobile((prev) => !prev)}
-        >
+        <button className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-sm font-semibold" onClick={() => setShowFiltersMobile((prev) => !prev)}>
           <SlidersHorizontal className="size-4" />
           {showFiltersMobile ? 'Ocultar filtros' : 'Mostrar filtros'}
         </button>
@@ -81,7 +71,7 @@ function HomePage() {
             categorias={filtrosOpcoes.categorias}
             subcategorias={filtrosOpcoes.subcategorias}
             filters={mergedFilters}
-            setFilters={setFilters}
+            onApplyFilters={setAppliedFilters}
             onClearFilters={clearFilters}
           />
         </div>
