@@ -6,7 +6,7 @@ import { formatPrice } from '../utils/format';
 const WHATSAPP_NUMBER = '5511999999999';
 
 function CheckoutPage() {
-  const { cart, totals, clearCart } = useCart();
+  const { cart, totals, clearCart, coupon } = useCart();
   const [form, setForm] = useState({
     nome: '',
     sobrenome: '',
@@ -26,7 +26,9 @@ function CheckoutPage() {
       telefone: form.telefone,
       endereco: form.endereco,
       pagamento: form.pagamento,
-      itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome }))
+      itens: cart.map((item) => ({ id: item.id, quantidade: item.quantidade, preco: item.preco, nome: item.nome })),
+      cupomCodigo: coupon?.codigo || '',
+      descontoCupom: totals.desconto
     };
 
     const response = await criarPedido(payload);
@@ -35,7 +37,7 @@ function CheckoutPage() {
       const itens = cart
         .map((item) => `- ${item.nome} (${item.quantidade}x) R$ ${formatPrice(item.preco * item.quantidade)}`)
         .join('%0A');
-      const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ATotal: R$ ${formatPrice(totals.amount)}%0APagamento: ${payload.pagamento}`;
+      const mensagem = `Novo Pedido SportVault%0ACliente: ${payload.nome}%0ATelefone: ${payload.telefone}%0AEndereço: ${payload.endereco}%0AItens:%0A${itens}%0ADesconto: R$ ${formatPrice(totals.desconto)}%0ATotal: R$ ${formatPrice(totals.finalAmount)}%0ACupom: ${payload.cupomCodigo || '-'}%0APagamento: ${payload.pagamento}`;
 
       setWhatsUrl(`https://wa.me/${WHATSAPP_NUMBER}?text=${mensagem}`);
       setStatus(`Pedido #${response.pedidoId} criado com sucesso!`);
@@ -95,10 +97,11 @@ function CheckoutPage() {
               <span>R$ {formatPrice(item.preco * item.quantidade)}</span>
             </div>
           ))}
+          <div className="flex justify-between"><span>Desconto</span><span>- R$ {formatPrice(totals.desconto)}</span></div>
           <hr className="my-2" />
           <div className="flex justify-between text-base font-bold">
             <span>Total</span>
-            <span>R$ {formatPrice(totals.amount)}</span>
+            <span>R$ {formatPrice(totals.finalAmount)}</span>
           </div>
         </div>
       </aside>
